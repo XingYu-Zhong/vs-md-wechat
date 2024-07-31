@@ -9,15 +9,35 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onView:vsMdView"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "extension.showWebview",
-        "title": "vs-md"
+        "title": "vs-md-wechat"
       }
-    ]
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "vs-md-sidebar",
+          "title": "VS-MD-WeChat",
+          "icon": "resources/sidebar-icon.png"
+        }
+      ]
+    },
+    "views": {
+      "vs-md-sidebar": [
+        {
+          "type": "webview",
+          "id": "vsMdView",
+          "name": ""
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

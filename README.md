@@ -1,71 +1,45 @@
-# vs-md README
+<div align="center">
 
-This is the README for your extension "vs-md". After writing up a brief description, we recommend including the following sections.
 
-## Features
+[![doocs-md](https://cdn-doocs.oss-cn-shenzhen.aliyuncs.com/gh/doocs/md/images/logo-2.png)](https://github.com/doocs/md)
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+</div>
 
-For example if there is an image subfolder under your extension project workspace:
+<h1 align="center">微信 Markdown VScode插件</h1>
 
-\!\[feature X\]\(images/feature-x.png\)
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+## 项目介绍
 
-## Requirements
+> 本项目基于 [md](https://github.com/Doocs/md) 进行二次开发，感谢 [doocs](https://github.com/lyricat) 的创意和贡献！
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+Markdown 文档自动即时渲染为微信图文，让你不再为微信文章排版而发愁！只要你会基本的 Markdown 语法，就能做出一篇样式简洁而又美观大方的微信图文。
 
-## Extension Settings
+## 如何使用
+- 安装插件
+  - `Ctrl + Shift + p` 输入 `vs-md-wechat` 即可打开预览网页
+  - 或者点击左侧侧边栏按钮
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
 
-For example:
+## 为何二次开发
 
-This extension contributes the following settings:
+- 主要是为了方便在VScode中使用，并无他意
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+## 功能特性
 
-## Known Issues
+- [x] 支持自定义 CSS 样式
+- [x] 支持 Markdown 所有基础语法
+- [x] 支持浅色、暗黑两种主题模式
+- [x] 支持 <kbd>Ctrl</kbd> + <kbd>F</kbd> 快速格式化文档
+- [x] 支持色盘取色，快速替换文章整体色调
+- [x] 支持多图上传，可自定义配置图床
+- [x] 支持自定义上传逻辑
+- [x] 支持在编辑框右键弹出功能选项卡
+- [x] 支持批量转换本地图片为线上图片
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
 
-## Release Notes
+## 注意事项
 
-Users appreciate release notes as you update your extension.
+- 请转到 [doocs/md](https://github.com/doocs/md) 查看更多详细文档。
 
-### 1.0.0
 
-Initial release of ...
 
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
