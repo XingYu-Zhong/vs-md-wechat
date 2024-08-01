@@ -1,7 +1,13 @@
 {
   "name": "vs-md",
   "displayName": "vs-md",
-  "description": "",
+  "description": "在VScode中输入markdown转换为公众号文档",
+  "publisher": "xiaofengs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xiaofengsoft/vs-md-wechat.git"
+  },
+  "icon": "resources/md/assets/images/logo.png",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.91.0"
@@ -9,9 +15,7 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-    "onView:vsMdView"
-  ],
+  "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
@@ -20,24 +24,8 @@
         "title": "vs-md-wechat"
       }
     ],
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "vs-md-sidebar",
-          "title": "VS-MD-WeChat",
-          "icon": "resources/sidebar-icon.png"
-        }
-      ]
-    },
-    "views": {
-      "vs-md-sidebar": [
-        {
-          "type": "webview",
-          "id": "vsMdView",
-          "name": ""
-        }
-      ]
-    }
+    "viewsContainers": {},
+    "views": {}
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
@@ -58,7 +46,9 @@
     "eslint": "^8.57.0",
     "typescript": "^5.4.5"
   },
-  "dependencies": {
-    "child_process": "^1.0.2"
-  }
+  "files": [
+    "out",
+    "resources",
+    "README.md"
+  ]
 }
