@@ -103,11 +103,6 @@ code --install-extension vs-md-[版本号].vsix
 
 - 请转到 [doocs/md](https://github.com/doocs/md) 查看更多详细文档。
 
-欢迎关注我的公众号"**小风博客**"，原创技术文章第一时间推送。
-
-<center>
-    <img src="https://t.tutu.to/img/BNTeK" style="width: 100px;">
-</center>
 
 
 
