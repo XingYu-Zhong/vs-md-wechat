@@ -33,4 +33,60 @@
   mermaid.initialize({ startOnLoad: true });
   window.mermaid = mermaid;</script>
 
+<script>
+// 等待Vue应用初始化完成
+window.addEventListener('load', function() {
+    // 延迟执行，确保Vue应用已经完全加载
+    setTimeout(function() {
+        // 获取Vue应用实例
+        const appElement = document.getElementById('app');
+        if (appElement && appElement.__vue__) {
+            window.vueApp = appElement.__vue__;
+            console.log('Vue应用已加载到全局变量');
+            
+            // 监听来自VSCode扩展的消息
+            window.addEventListener('message', function(event) {
+                const message = event.data;
+                console.log('收到VSCode消息:', message);
+                
+                if (window.vueApp && window.vueApp.$refs && window.vueApp.$refs.editor) {
+                    switch (message.command) {
+                        case 'setContent':
+                        case 'updateContent':
+                            console.log('设置编辑器内容:', message.content);
+                            window.vueApp.$refs.editor.setValue(message.content);
+                            if (window.vueApp.onEditorRefresh) {
+                                window.vueApp.onEditorRefresh();
+                            }
+                            break;
+                    }
+                }
+            });
+        } else {
+            // 如果还没准备好，继续重试
+            setTimeout(arguments.callee, 100);
+        }
+    }, 1000);
+});
+
+// 监听DOM变化，确保能获取到Vue应用实例
+const observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+        if (mutation.type === 'childList') {
+            const appElement = document.getElementById('app');
+            if (appElement && appElement.__vue__ && !window.vueApp) {
+                window.vueApp = appElement.__vue__;
+                console.log('通过DOM观察器获取到Vue应用实例');
+            }
+        }
+    });
+});
+
+// 开始观察
+observer.observe(document.body, {
+    childList: true,
+    subtree: true
+});
+</script>
+
 </html>

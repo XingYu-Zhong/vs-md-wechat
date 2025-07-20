@@ -2,7 +2,7 @@
   "name": "vs-md",
   "displayName": "vs-md",
   "description": "在VScode中输入markdown转换为公众号文档",
-  "publisher": "",
+  "publisher": "zxy",
   "icon": "resources/md/assets/images/logo.png",
   "version": "0.0.1",
   "engines": {
