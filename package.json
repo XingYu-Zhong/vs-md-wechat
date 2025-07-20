@@ -4,7 +4,7 @@
   "description": "在VScode中输入markdown转换为公众号文档",
   "publisher": "zxy",
   "icon": "resources/md/assets/images/logo.png",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.91.0"
   },

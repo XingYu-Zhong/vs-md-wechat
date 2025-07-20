@@ -28,21 +28,14 @@ export function activate(context: vscode.ExtensionContext) {
         
         let htmlContent: string = getHtmlContentForWebview(context, panel.webview);
         console.log(htmlContent);
+        console.log("Creating webview panel and setting HTML content.");
         panel.webview.html = htmlContent;
-
-        // 等待webview加载完成后发送初始内容
-        setTimeout(() => {
-            panel.webview.postMessage({
-                command: 'setContent',
-                content: documentContent
-            });
-        }, 2000);
 
         // 监听文档变化，实时更新webview内容
         const documentChangeListener = vscode.workspace.onDidChangeTextDocument((event) => {
             if (event.document === activeEditor.document) {
                 const newContent = event.document.getText();
-                // 通过webview的postMessage方法发送新内容
+                console.log("Document changed, sending 'updateContent' to webview.");
                 panel.webview.postMessage({
                     command: 'updateContent',
                     content: newContent
@@ -52,15 +45,24 @@ export function activate(context: vscode.ExtensionContext) {
 
         // 监听webview关闭事件，清理监听器
         panel.onDidDispose(() => {
+            console.log("Webview panel disposed.");
             documentChangeListener.dispose();
         });
 
         // 监听webview消息
         panel.webview.onDidReceiveMessage(
             message => {
+                console.log("Received message from webview:", message.command);
                 switch (message.command) {
+                    case 'webviewReady': // Webview is ready to receive content
+                        console.log("Webview is ready. Sending 'setContent' with document content.");
+                        panel.webview.postMessage({
+                            command: 'setContent',
+                            content: documentContent
+                        });
+                        break;
                     case 'getContent':
-                        // 当webview请求内容时，发送当前文档内容
+                        console.log("Webview requested content. Sending 'setContent'.");
                         panel.webview.postMessage({
                             command: 'setContent',
                             content: documentContent
