@@ -1,81 +1,161 @@
+    console.log('vs-md extension is now active!');
+    
+    // 本地版编辑器命令
+    let localDisposable = vscode.commands.registerCommand('extension.showLocalWebview', () => {
+        console.log('extension.showLocalWebview command triggered!');
+        vscode.window.showInformationMessage('正在启动微信Markdown编辑器(本地版)...');
+        
+        try {
+            const panel = vscode.window.createWebviewPanel(
+                'vs-md-wechat-local',
+                '微信 Markdown 编辑器 (本地版)',
+                vscode.ViewColumn.One,
+                {
+                    enableScripts: true,
+                    retainContextWhenHidden: true,
+                    localResourceRoots: [
+                        vscode.Uri.file(path.join(context.extensionPath, 'resources', 'md')),
+                    ]
+                }
+            );
+    
+            const localHtmlPath = path.join(context.extensionPath, 'resources', 'md', 'local.html');
+            const localHtmlContent = fs.readFileSync(localHtmlPath, 'utf8');
+            panel.webview.html = localHtmlContent;
+            
+            // 获取当前编辑器中的Markdown内容
+            const activeEditor = vscode.window.activeTextEditor;
+            if (activeEditor && activeEditor.document.languageId === 'markdown') {
+                const currentMarkdownContent = activeEditor.document.getText();
+                // 等待webview加载完成后发送内容
+                setTimeout(() => {
+                    panel.webview.postMessage({
+                        command: 'loadMarkdown',
+                        content: currentMarkdownContent
+                    });
+                }, 1000);
+            } else {
+                console.log('No markdown file is currently open');
+            }
+            
+            // 监听来自webview的消息
+            panel.webview.onDidReceiveMessage(
+                message => {
+                    switch (message.command) {
+                        case 'log':
+                            console.log('Local webview log:', message.text);
+                            vscode.window.showInformationMessage(message.text);
+                            return;
+                        case 'requestCurrentMarkdown':
+                            // 当webview请求当前Markdown内容时
+                            const editor = vscode.window.activeTextEditor;
+                            if (editor && editor.document.languageId === 'markdown') {
+                                const content = editor.document.getText();
+                                panel.webview.postMessage({
+                                    command: 'loadMarkdown',
+                                    content: content
+                                });
+                            } else {
+                                vscode.window.showWarningMessage('请先打开一个 Markdown 文件');
+                            }
+                            return;
+                    }
+                },
+                undefined,
+                context.subscriptions
+            );
+        } catch (error) {
+            console.error('Error creating local webview:', error);
+            vscode.window.showErrorMessage(`创建webview时出错: ${error}`);
+>>>>>>> b80fb56 (feat(localWebview): 添加本地版微信Markdown编辑器支持)
+        }
+    });
+
+    context.subscriptions.push(localDisposable);
+}
+
+export function deactivate() {}
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 
 export function activate(context: vscode.ExtensionContext) {
-    let disposable = vscode.commands.registerCommand('extension.showWebview', () => {
-        // 获取当前活动的编辑器
-        const activeEditor = vscode.window.activeTextEditor;
+    console.log('vs-md extension is now active!');
+    
+    // 本地版编辑器命令
+    let localDisposable = vscode.commands.registerCommand('extension.showLocalWebview', () => {
+        console.log('extension.showLocalWebview command triggered!');
+        vscode.window.showInformationMessage('正在启动微信Markdown编辑器(本地版)...');
         
-        // 检查是否有打开的文档且是markdown文件
-        if (!activeEditor || activeEditor.document.languageId !== 'markdown') {
-            vscode.window.showWarningMessage('请先打开一个Markdown文档');
-            return;
-        }
-
-        const panel = vscode.window.createWebviewPanel(
-            'vs-md-wechat-new', // Identifies the type of the webview. Used internally
-            'Markdown-公众号', // Title of the panel displayed to the user
-            vscode.ViewColumn.One, // Editor column to show the new webview panel in
-            {
-                enableScripts: true, // Enable JavaScript in the webview
-                retainContextWhenHidden: true, // 保持webview状态
-            }
-        );
-
-        // 获取当前文档的内容
-        const documentContent = activeEditor.document.getText();
-        
-        let htmlContent: string = getHtmlContentForWebview(context, panel.webview);
-        console.log(htmlContent);
-        console.log("Creating webview panel and setting HTML content.");
-        panel.webview.html = htmlContent;
-
-        // 监听文档变化，实时更新webview内容
-        const documentChangeListener = vscode.workspace.onDidChangeTextDocument((event) => {
-            if (event.document === activeEditor.document) {
-                const newContent = event.document.getText();
-                console.log("Document changed, sending 'updateContent' to webview.");
-                panel.webview.postMessage({
-                    command: 'updateContent',
-                    content: newContent
-                });
-            }
-        });
-
-        // 监听webview关闭事件，清理监听器
-        panel.onDidDispose(() => {
-            console.log("Webview panel disposed.");
-            documentChangeListener.dispose();
-        });
-
-        // 监听webview消息
-        panel.webview.onDidReceiveMessage(
-            message => {
-                console.log("Received message from webview:", message.command);
-                switch (message.command) {
-                    case 'webviewReady': // Webview is ready to receive content
-                        console.log("Webview is ready. Sending 'setContent' with document content.");
-                        panel.webview.postMessage({
-                            command: 'setContent',
-                            content: documentContent
-                        });
-                        break;
-                    case 'getContent':
-                        console.log("Webview requested content. Sending 'setContent'.");
-                        panel.webview.postMessage({
-                            command: 'setContent',
-                            content: documentContent
-                        });
-                        break;
+        try {
+            const panel = vscode.window.createWebviewPanel(
+                'vs-md-wechat-local',
+                '微信 Markdown 编辑器 (本地版)',
+                vscode.ViewColumn.One,
+                {
+                    enableScripts: true,
+                    retainContextWhenHidden: true,
+                    localResourceRoots: [
+                        vscode.Uri.file(path.join(context.extensionPath, 'resources', 'md')),
+                    ]
                 }
-            },
-            undefined,
-            context.subscriptions
-        );
+            );
+    
+            const localHtmlPath = path.join(context.extensionPath, 'resources', 'md', 'local.html');
+            const localHtmlContent = fs.readFileSync(localHtmlPath, 'utf8');
+            panel.webview.html = localHtmlContent;
+            
+            // 获取当前编辑器中的Markdown内容
+            const activeEditor = vscode.window.activeTextEditor;
+            if (activeEditor && activeEditor.document.languageId === 'markdown') {
+                const currentMarkdownContent = activeEditor.document.getText();
+                // 等待webview加载完成后发送内容
+                setTimeout(() => {
+                    panel.webview.postMessage({
+                        command: 'loadMarkdown',
+                        content: currentMarkdownContent
+                    });
+                }, 1000);
+            } else {
+                console.log('No markdown file is currently open');
+            }
+            
+            // 监听来自webview的消息
+            panel.webview.onDidReceiveMessage(
+                message => {
+                    switch (message.command) {
+                        case 'log':
+                            console.log('Local webview log:', message.text);
+                            vscode.window.showInformationMessage(message.text);
+                            return;
+                        case 'requestCurrentMarkdown':
+                            // 当webview请求当前Markdown内容时
+                            const editor = vscode.window.activeTextEditor;
+                            if (editor && editor.document.languageId === 'markdown') {
+                                const content = editor.document.getText();
+                                panel.webview.postMessage({
+                                    command: 'loadMarkdown',
+                                    content: content
+                                });
+                            } else {
+                                vscode.window.showWarningMessage('请先打开一个 Markdown 文件');
+                            }
+                            return;
+                    }
+                },
+                undefined,
+                context.subscriptions
+            );
+        } catch (error) {
+            console.error('Error creating local webview:', error);
+            vscode.window.showErrorMessage(`创建webview时出错: ${error}`);
+        }
     });
 
-    context.subscriptions.push(disposable);
+    context.subscriptions.push(localDisposable);
+}
+
+export function deactivate() {}
 }
 
 export function deactivate() {}
@@ -96,9 +176,81 @@ function updateHtmlContentForWebview(htmlContent: string, webview: vscode.Webvie
         // Handle absolute URLs (http, https)
         if (p2.startsWith('http')) {
             return `${p1}="${p2}"`;
+=======
+    console.log('vs-md extension is now active!');
+    
+    // 本地版编辑器命令
+    let localDisposable = vscode.commands.registerCommand('extension.showLocalWebview', () => {
+        console.log('extension.showLocalWebview command triggered!');
+        vscode.window.showInformationMessage('正在启动微信Markdown编辑器(本地版)...');
+        
+        try {
+            const panel = vscode.window.createWebviewPanel(
+                'vs-md-wechat-local',
+                '微信 Markdown 编辑器 (本地版)',
+                vscode.ViewColumn.One,
+                {
+                    enableScripts: true,
+                    retainContextWhenHidden: true,
+                    localResourceRoots: [
+                        vscode.Uri.file(path.join(context.extensionPath, 'resources', 'md')),
+                    ]
+                }
+            );
+    
+            const localHtmlPath = path.join(context.extensionPath, 'resources', 'md', 'local.html');
+            const localHtmlContent = fs.readFileSync(localHtmlPath, 'utf8');
+            panel.webview.html = localHtmlContent;
+            
+            // 获取当前编辑器中的Markdown内容
+            const activeEditor = vscode.window.activeTextEditor;
+            if (activeEditor && activeEditor.document.languageId === 'markdown') {
+                const currentMarkdownContent = activeEditor.document.getText();
+                // 等待webview加载完成后发送内容
+                setTimeout(() => {
+                    panel.webview.postMessage({
+                        command: 'loadMarkdown',
+                        content: currentMarkdownContent
+                    });
+                }, 1000);
+            } else {
+                console.log('No markdown file is currently open');
+            }
+            
+            // 监听来自webview的消息
+            panel.webview.onDidReceiveMessage(
+                message => {
+                    switch (message.command) {
+                        case 'log':
+                            console.log('Local webview log:', message.text);
+                            vscode.window.showInformationMessage(message.text);
+                            return;
+                        case 'requestCurrentMarkdown':
+                            // 当webview请求当前Markdown内容时
+                            const editor = vscode.window.activeTextEditor;
+                            if (editor && editor.document.languageId === 'markdown') {
+                                const content = editor.document.getText();
+                                panel.webview.postMessage({
+                                    command: 'loadMarkdown',
+                                    content: content
+                                });
+                            } else {
+                                vscode.window.showWarningMessage('请先打开一个 Markdown 文件');
+                            }
+                            return;
+                    }
+                },
+                undefined,
+                context.subscriptions
+            );
+        } catch (error) {
+            console.error('Error creating local webview:', error);
+            vscode.window.showErrorMessage(`创建webview时出错: ${error}`);
+>>>>>>> b80fb56 (feat(localWebview): 添加本地版微信Markdown编辑器支持)
         }
-        const resourcePath = vscode.Uri.file(path.join(extensionPath, 'resources', 'md', p2));
-        const webviewUri = webview.asWebviewUri(resourcePath);
-        return `${p1}="${webviewUri}"`;
     });
+
+    context.subscriptions.push(localDisposable);
 }
+
+export function deactivate() {}

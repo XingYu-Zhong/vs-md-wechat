@@ -16,22 +16,22 @@
   "contributes": {
     "commands": [
       {
-        "command": "extension.showWebview",
-        "title": "打开微信Markdown编辑器",
-        "icon": "$(preview)"
+        "command": "extension.showLocalWebview",
+        "title": "打开微信Markdown编辑器(本地版)",
+        "icon": "$(home)"
       }
     ],
     "menus": {
       "editor/context": [
         {
-          "command": "extension.showWebview",
+          "command": "extension.showLocalWebview",
           "group": "navigation",
           "when": "editorLangId == markdown"
         }
       ],
       "editor/title": [
         {
-          "command": "extension.showWebview",
+          "command": "extension.showLocalWebview",
           "group": "navigation",
           "when": "editorLangId == markdown"
         }
@@ -39,9 +39,10 @@
     },
     "keybindings": [
       {
-        "command": "extension.showWebview",
-        "key": "ctrl+shift+w",
-        "mac": "cmd+shift+w"
+        "command": "extension.showLocalWebview",
+        "key": "ctrl+shift+l",
+        "mac": "cmd+shift+l",
+        "when": "editorTextFocus"
       }
     ],
     "viewsContainers": {},
@@ -66,5 +67,8 @@
     "@vscode/vsce": "^3.6.0",
     "eslint": "^8.57.0",
     "typescript": "^5.4.5"
+  },
+  "resolutions": {
+    "punycode": "^2.3.1"
   }
 }

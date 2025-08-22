@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>微信 Markdown 编辑器 (本地版)</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: #1f2937;
+            color: white;
+            padding: 15px 20px;
+            border-bottom: 1px solid #374151;
+        }
+        
+        .header h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .toolbar {
+            background: white;
+            padding: 10px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 6px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover {
+            background: #f3f4f6;
+            border-color: #9ca3af;
+        }
+        
+        .btn.load-btn {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+        
+        .btn.load-btn:hover {
+            background: #059669;
+        }
+        
+        .main-content {
+            flex: 1;
+            display: flex;
+            height: calc(100vh - 120px);
+        }
+        
+        .editor-panel, .preview-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .editor-panel {
+            border-right: 1px solid #e5e7eb;
+        }
+        
+        .panel-header {
+            background: #f9fafb;
+            padding: 8px 15px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 13px;
+            font-weight: 500;
+            color: #6b7280;
+        }
+        
+        .editor-textarea {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 20px;
+            font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: none;
+            background: white;
+            overflow-y: auto;
+        }
+        
+        .preview-content {
+            flex: 1;
+            padding: 20px;
+            background: white;
+            overflow-y: auto;
+            font-family: -apple-system-font, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.8;
+            color: #333;
+        }
+        
+        /* 微信公众号样式增强 */
+        .preview-content h1 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin: 20px 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3f51b5;
+        }
+        
+        .preview-content h2 {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin: 18px 0 12px 0;
+            padding-left: 10px;
+            border-left: 4px solid #3f51b5;
+        }
+        
+        .preview-content h3 {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin: 16px 0 10px 0;
+        }
+        
+        .preview-content h4, .preview-content h5, .preview-content h6 {
+            font-weight: bold;
+            color: #333;
+            margin: 12px 0 8px 0;
+        }
+        
+        .preview-content p {
+            margin: 12px 0;
+            text-align: justify;
+        }
+        
+        .preview-content strong {
+            color: #3f51b5;
+            font-weight: bold;
+        }
+        
+        .preview-content em {
+            color: #666;
+            font-style: italic;
+        }
+        
+        .preview-content blockquote {
+            margin: 15px 0;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-left: 4px solid #3f51b5;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .preview-content ul, .preview-content ol {
+            margin: 12px 0 12px 20px;
+        }
+        
+        .preview-content li {
+            margin: 5px 0;
+        }
+        
+        .preview-content code {
+            background: #f1f2f6;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: Monaco, Consolas, monospace;
+            font-size: 14px;
+            color: #e74c3c;
+        }
+        
+        .preview-content pre {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: Monaco, Consolas, monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .preview-content pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+        
+        .preview-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .preview-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .preview-content th, .preview-content td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .preview-content th {
+            background: #f9fafb;
+            font-weight: bold;
+        }
+        
+        .preview-content a {
+            color: #3f51b5;
+            text-decoration: none;
+        }
+        
+        .preview-content a:hover {
+            text-decoration: underline;
+        }
+        
+        .preview-content del {
+            color: #999;
+        }
+        
+        .status-bar {
+            background: #f9fafb;
+            padding: 5px 20px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 12px;
+            color: #6b7280;
+        }
+        
+        .copy-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #3f51b5;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(63, 81, 181, 0.3);
+            transition: all 0.3s;
+        }
+        
+        .copy-btn:hover {
+            background: #303f9f;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(63, 81, 181, 0.4);
+        }
+        
+        /* kbd 键盘按键样式 - 微信公众号风格 */
+        .preview-content kbd {
+            display: inline-block;
+            padding: 4px 8px;
+            font-size: 12px;
+            line-height: 1;
+            color: #24292e;
+            vertical-align: middle;
+            background-color: #f6f8fa;
+            border: 1px solid #d1d5da;
+            border-radius: 6px;
+            box-shadow: inset 0 -1px 0 #d1d5da, 0 1px 0 rgba(27,31,35,0.04);
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>微信 Markdown 编辑器 (本地版)</h1>
+        </div>
+        
+        <div class="toolbar">
+            <button class="btn" onclick="insertText('**', '**')">加粗</button>
+            <button class="btn" onclick="insertText('*', '*')">斜体</button>
+            <button class="btn" onclick="insertText('`', '`')">代码</button>
+            <button class="btn" onclick="insertText('\n> ', '')">引用</button>
+            <button class="btn" onclick="insertText('\n- ', '')">列表</button>
+            <button class="btn load-btn" onclick="loadCurrentFile()">加载当前文件</button>
+            <button class="btn" onclick="clearContent()">清空</button>
+        </div>
+        
+        <div class="main-content">
+            <div class="editor-panel">
+                <div class="panel-header">Markdown 编辑器</div>
+                <textarea 
+                    id="editor"
+                    class="editor-textarea"
+                    placeholder="在这里输入 Markdown 内容...
+
+示例：
+# 标题
+**粗体** *斜体*
+> 引用内容
+- 列表项"
+                    oninput="updatePreview()"
+                ># 欢迎使用微信 Markdown 编辑器
+
+这是一个专为**微信公众号**设计的 Markdown 编辑器。
+
+## 功能特性
+
+- ✅ **实时预览** - 左侧编辑，右侧即时预览
+- ✅ **微信样式** - 专门适配公众号的排版样式
+- ✅ **一键复制** - 点击右下角按钮即可复制
+- ✅ **本地运行** - 无需网络连接
+
+## 使用方法
+
+1. 在左侧编辑区输入 Markdown 内容
+2. 右侧实时查看微信公众号效果
+3. 点击 **复制内容** 按钮
+4. 粘贴到微信公众号后台即可
+
+开始编辑您的内容吧！</textarea>
+            </div>
+            
+            <div class="preview-panel">
+                <div class="panel-header">微信公众号预览</div>
+                <div id="preview" class="preview-content"></div>
+            </div>
+        </div>
+        
+        <div class="status-bar">
+            本地版本 | 已准备好复制到微信公众号
+        </div>
+    </div>
+    
+    <button class="copy-btn" onclick="copyToClipboard()">复制内容</button>
+
+    <script>
+        let vscode;
+        
+        // 尝试获取VSCode API
+        try {
+            vscode = acquireVsCodeApi();
+        } catch (e) {
+            console.log('非VSCode环境');
+        }
+        
+        // 增强的Markdown解析器
+        function parseMarkdown(text) {
+            if (!text) return '';
+            
+            // 预处理：分割成行
+            let lines = text.split('\n');
+            let result = [];
+            let inCodeBlock = false;
+            let codeBlockContent = [];
+            let inList = false;
+            let listItems = [];
+            let listType = '';
+            
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i];
+                
+                // 处理代码块
+                if (line.match(/^```/)) {
+                    if (inCodeBlock) {
+                        // 结束代码块
+                        let lang = codeBlockContent[0] ? codeBlockContent[0].replace('```', '').trim() : '';
+                        let code = codeBlockContent.slice(1).join('\n');
+                        result.push(`<pre style="background: #2d3748; color: #e2e8f0; padding: 20px; border-radius: 8px; margin: 15px 0; overflow-x: auto; font-family: Monaco, Consolas, monospace; font-size: 14px; line-height: 1.5;"><code>${escapeHtml(code)}</code></pre>`);
+                        codeBlockContent = [];
+                        inCodeBlock = false;
+                    } else {
+                        // 开始代码块
+                        if (inList) {
+                            result.push(wrapList(listItems, listType));
+                            listItems = [];
+                            inList = false;
+                        }
+                        inCodeBlock = true;
+                        codeBlockContent.push(line);
+                    }
+                    continue;
+                }
+                
+                if (inCodeBlock) {
+                    codeBlockContent.push(line);
+                    continue;
+                }
+                
+                // 处理列表
+                let listMatch = line.match(/^(\s*)([-*+]|\d+\.)\s+(.*)/);
+                if (listMatch) {
+                    let indent = listMatch[1].length;
+                    let marker = listMatch[2];
+                    let content = listMatch[3];
+                    let currentListType = marker.match(/\d+\./) ? 'ol' : 'ul';
+                    
+                    if (!inList || listType !== currentListType) {
+                        if (inList) {
+                            result.push(wrapList(listItems, listType));
+                        }
+                        listItems = [];
+                        listType = currentListType;
+                        inList = true;
+                    }
+                    
+                    listItems.push(`<li style="margin: 5px 0;">${parseInlineMarkdown(content)}</li>`);
+                    continue;
+                }
+                
+                // 如果之前在列表中，现在不是列表了，要结束列表
+                if (inList && !listMatch) {
+                    result.push(wrapList(listItems, listType));
+                    listItems = [];
+                    inList = false;
+                }
+                
+                // 处理其他元素
+                if (line.trim() === '') {
+                    if (!inList) {
+                        result.push('<br>');
+                    }
+                } else if (line.match(/^#{1,6}\s/)) {
+                    // 标题
+                    let level = line.match(/^#+/)[0].length;
+                    let text = line.replace(/^#+\s*/, '');
+                    result.push(formatHeading(level, text));
+                } else if (line.match(/^>\s/)) {
+                    // 引用
+                    let content = line.replace(/^>\s*/, '');
+                    result.push(`<blockquote style="margin: 15px 0; padding: 15px 20px; background: #f8f9fa; border-left: 4px solid #3f51b5; color: #666; font-style: italic;">${parseInlineMarkdown(content)}</blockquote>`);
+                } else if (line.match(/^\|.*\|$/)) {
+                    // 表格（简单处理）
+                    let cells = line.split('|').slice(1, -1).map(cell => cell.trim());
+                    let isHeader = i + 1 < lines.length && lines[i + 1].match(/^\|[-:]+\|$/);
+                    if (isHeader) {
+                        result.push(`<table style="width: 100%; border-collapse: collapse; margin: 15px 0; border: 1px solid #e5e7eb;"><thead><tr>${cells.map(cell => `<th style="padding: 12px; text-align: left; border: 1px solid #e5e7eb; background: #f9fafb; font-weight: bold;">${parseInlineMarkdown(cell)}</th>`).join('')}</tr></thead><tbody>`);
+                        i++; // 跳过分隔行
+                    } else {
+                        result.push(`<tr>${cells.map(cell => `<td style="padding: 12px; text-align: left; border: 1px solid #e5e7eb;">${parseInlineMarkdown(cell)}</td>`).join('')}</tr>`);
+                    }
+                } else {
+                    // 普通段落
+                    if (line.trim() !== '') {
+                        result.push(`<p style="margin: 12px 0; text-align: justify;">${parseInlineMarkdown(line)}</p>`);
+                    }
+                }
+            }
+            
+            // 处理未闭合的列表
+            if (inList) {
+                result.push(wrapList(listItems, listType));
+            }
+            
+            // 处理未闭合的代码块
+            if (inCodeBlock && codeBlockContent.length > 1) {
+                let code = codeBlockContent.slice(1).join('\n');
+                result.push(`<pre style="background: #2d3748; color: #e2e8f0; padding: 20px; border-radius: 8px; margin: 15px 0; overflow-x: auto; font-family: Monaco, Consolas, monospace; font-size: 14px; line-height: 1.5;"><code>${escapeHtml(code)}</code></pre>`);
+            }
+            
+            return result.join('');
+        }
+        
+        function parseInlineMarkdown(text) {
+            return text
+                // 链接
+                .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color: #3f51b5; text-decoration: none;">$1</a>')
+                // 图片
+                .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width: 100%; height: auto; border-radius: 8px; margin: 15px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">')
+                // 粗体
+                .replace(/\*\*(.*?)\*\*/g, '<strong style="color: #3f51b5; font-weight: bold;">$1</strong>')
+                // 斜体
+                .replace(/(?<!\*)\*((?!\*)[^*]+)\*(?!\*)/g, '<em style="color: #666; font-style: italic;">$1</em>')
+                // 行内代码
+                .replace(/`([^`]+)`/g, '<code style="background: #f1f2f6; padding: 2px 6px; border-radius: 3px; font-family: Monaco, Consolas, monospace; font-size: 14px; color: #e74c3c;">$1</code>')
+                // 删除线
+                .replace(/~~(.*?)~~/g, '<del style="color: #999;">$1</del>');
+        }
+        
+        function formatHeading(level, text) {
+            const styles = {
+                1: 'font-size: 24px; font-weight: bold; color: #333; margin: 20px 0 15px 0; padding-bottom: 10px; border-bottom: 2px solid #3f51b5;',
+                2: 'font-size: 20px; font-weight: bold; color: #333; margin: 18px 0 12px 0; padding-left: 10px; border-left: 4px solid #3f51b5;',
+                3: 'font-size: 18px; font-weight: bold; color: #333; margin: 16px 0 10px 0;',
+                4: 'font-size: 16px; font-weight: bold; color: #333; margin: 14px 0 8px 0;',
+                5: 'font-size: 14px; font-weight: bold; color: #333; margin: 12px 0 6px 0;',
+                6: 'font-size: 12px; font-weight: bold; color: #333; margin: 10px 0 4px 0;'
+            };
+            return `<h${level} style="${styles[level]}">${parseInlineMarkdown(text)}</h${level}>`;
+        }
+        
+        function wrapList(items, type) {
+            let style = type === 'ol' ? 
+                'margin: 12px 0 12px 20px; padding-left: 20px;' : 
+                'margin: 12px 0 12px 20px; list-style-type: disc;';
+            return `<${type} style="${style}">${items.join('')}</${type}>`;
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function updatePreview() {
+            const editor = document.getElementById('editor');
+            const preview = document.getElementById('preview');
+            const markdown = editor.value;
+            
+            // 保存编辑器的滚动位置
+            const editorScrollTop = editor.scrollTop;
+            
+            preview.innerHTML = parseMarkdown(markdown);
+            
+            // 确保编辑器的滚动位置不被改变
+            if (editor.scrollTop !== editorScrollTop) {
+                editor.scrollTop = editorScrollTop;
+            }
+        }
+        
+        function insertText(before, after) {
+            const editor = document.getElementById('editor');
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const selectedText = editor.value.substring(start, end);
+            
+            // 保存滚动位置
+            const scrollTop = editor.scrollTop;
+            
+            const newText = before + selectedText + after;
+            editor.value = editor.value.substring(0, start) + newText + editor.value.substring(end);
+            
+            editor.focus();
+            editor.setSelectionRange(start + before.length, start + before.length + selectedText.length);
+            
+            // 恢复滚动位置
+            editor.scrollTop = scrollTop;
+            
+            updatePreview();
+        }
+        
+        function clearContent() {
+            if (confirm('确定要清空所有内容吗？')) {
+                const editor = document.getElementById('editor');
+                editor.value = '';
+                editor.scrollTop = 0; // 滚动到顶部
+                editor.setSelectionRange(0, 0); // 设置光标到开始位置
+                updatePreview();
+                editor.focus();
+            }
+        }
+        
+        function loadCurrentFile() {
+            if (vscode) {
+                vscode.postMessage({
+                    command: 'requestCurrentMarkdown'
+                });
+                // 可以添加加载提示
+                console.log('正在加载当前 Markdown 文件...');
+            } else {
+                alert('只能在 VSCode 中使用此功能');
+            }
+        }
+        
+        function copyToClipboard() {
+            const preview = document.getElementById('preview');
+            const range = document.createRange();
+            range.selectNode(preview);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            
+            try {
+                document.execCommand('copy');
+                alert('内容已复制到剪贴板！可以直接粘贴到微信公众号编辑器中。');
+            } catch (err) {
+                alert('复制失败，请手动选择内容进行复制。');
+            }
+            
+            window.getSelection().removeAllRanges();
+        }
+        
+        // 监听来自VSCode的消息
+        if (typeof window !== 'undefined') {
+            window.addEventListener('message', event => {
+                const message = event.data;
+                switch (message.command) {
+                    case 'loadMarkdown':
+                        const editor = document.getElementById('editor');
+                        editor.value = message.content;
+                        editor.scrollTop = 0; // 滚动到顶部
+                        editor.setSelectionRange(0, 0); // 设置光标到开始位置
+                        updatePreview();
+                        editor.focus();
+                        console.log('✅ 已加载 Markdown 文件内容');
+                        break;
+                }
+            });
+        }
+        
+        // 初始化
+        updatePreview();
+        
+        // 发送成功消息到扩展
+        if (vscode) {
+            vscode.postMessage({
+                command: 'log',
+                text: '✅ 本地版微信 Markdown 编辑器启动成功！'
+            });
+        }
+    </script>
+</body>
+</html>
